@@ -1,0 +1,31 @@
+package algorithms;
+
+import java.util.Scanner;
+public class Main {
+	
+	public static void main(String[] args) {
+
+
+		    
+		        Scanner scanner = new Scanner(System.in);
+		        FCFS fcfs = new FCFS();
+		        System.out.print("Enter the number of processes: ");
+		        int n = scanner.nextInt();
+
+		        int processes[] = new int[n];
+		        int burstTime[] = new int[n];
+
+		        for (int i = 0; i < n; i++) {
+		            processes[i] = i + 1; // Process IDs
+		            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+		            burstTime[i] = scanner.nextInt();
+		        }
+
+		        fcfs.findavgTime(processes, n, burstTime);
+
+		        scanner.close();
+		    }
+
+	}
+
+
