@@ -2,74 +2,207 @@ package algorithms;
 
 import java.util.Scanner;
 
+/**
+ * FCFS (First Come First Served) CPU Scheduling Algorithm Implementation.
+ * Includes: Waiting Time, Turnaround Time, Response Time,
+ * CPU Utilization, Throughput, and a Gantt Chart.
+ */
 public class FCFS {
 
-    // Function to calculate waiting time for all processes
-    static void findWaitingTime(int processes[], int n, int burstTime[], int waitingTime[]) {
-        // Waiting time for the first process is 0
+    /**
+     * Calculates waiting time for all processes using FCFS logic.
+     */
+    static void findWaitingTime(int n, int arrivalTime[], int burstTime[], int waitingTime[]) {
+        int serviceTime[] = new int[n];
+        serviceTime[0] = arrivalTime[0];
+
         waitingTime[0] = 0;
 
-        // Calculate waiting time for subsequent processes
         for (int i = 1; i < n; i++) {
-            waitingTime[i] = burstTime[i - 1] + waitingTime[i - 1];
+            serviceTime[i] = serviceTime[i - 1] + burstTime[i - 1];
+            waitingTime[i] = Math.max(0, serviceTime[i] - arrivalTime[i]);
         }
     }
 
-    // Function to calculate turnaround time for all processes
-    static void findTurnAroundTime(int processes[], int n, int burstTime[], int waitingTime[], int turnAroundTime[]) {
-        // Calculate turnaround time by adding burstTime[i] + waitingTime[i]
+    /**
+     * Calculates turnaround time: TT = BT + WT
+     */
+    static void findTurnAroundTime(int n, int burstTime[], int waitingTime[], int turnAroundTime[]) {
         for (int i = 0; i < n; i++) {
             turnAroundTime[i] = burstTime[i] + waitingTime[i];
         }
     }
 
-    // Function to calculate and display average time
-    static void findavgTime(int processes[], int n, int burstTime[]) {
+    /**
+     * Response time = waiting time for FCFS
+     */
+    static void findResponseTime(int n, int waitingTime[], int responseTime[]) {
+        for (int i = 0; i < n; i++) {
+            responseTime[i] = waitingTime[i];
+        }
+    }
+
+    /**
+     * CPU Utilization = (Total Burst Time / Total Run Time) × 100
+     */
+    static float findCPUUtilization(int n, int burstTime[], int completionTime[]) {
+        int totalBurst = 0;
+        for (int b : burstTime) totalBurst += b;
+
+        int totalTime = completionTime[n - 1];
+
+        return ((float) totalBurst / totalTime) * 100;
+    }
+
+    /**
+     * Throughput = completed processes / total time
+     */
+    static float findThroughput(int n, int completionTime[]) {
+        int totalTime = completionTime[n - 1];
+        return (float) n / totalTime;
+    }
+
+    /**
+     * Main FCFS function calculating all metrics and printing detailed output.
+     */
+    static void findavgTime(int processes[], int n, int arrivalTime[], int burstTime[]) {
+
         int waitingTime[] = new int[n];
         int turnAroundTime[] = new int[n];
-        int total_waitingTime = 0;
-        int total_turnAroundTime = 0;
+        int responseTime[] = new int[n];
+        int completionTime[] = new int[n];
 
-        // Find waiting time of all processes
-        findWaitingTime(processes, n, burstTime, waitingTime);
+        // ----------------------------------------------------
+        // Sort by Arrival Time (FCFS Requirement)
+        // ----------------------------------------------------
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (arrivalTime[j] > arrivalTime[j + 1]) {
 
-        // Find turn around time for all processes
-        findTurnAroundTime(processes, n, burstTime, waitingTime, turnAroundTime);
+                    int temp;
 
-        // Display processes along with all details
-        System.out.println("Processes\tBurst Time\tWaiting Time\tTurnaround Time");
+                    temp = arrivalTime[j];
+                    arrivalTime[j] = arrivalTime[j + 1];
+                    arrivalTime[j + 1] = temp;
 
-        // Calculate total waiting time and total turn around time
-        for (int i = 0; i < n; i++) {
-            total_waitingTime = total_waitingTime + waitingTime[i];
-            total_turnAroundTime = total_turnAroundTime + turnAroundTime[i];
-            System.out.println(" " + (i + 1) + "\t\t" + burstTime[i] + "\t\t" +
-                               waitingTime[i] + "\t\t" + turnAroundTime[i]);
+                    temp = burstTime[j];
+                    burstTime[j] = burstTime[j + 1];
+                    burstTime[j + 1] = temp;
+
+                    temp = processes[j];
+                    processes[j] = processes[j + 1];
+                    processes[j + 1] = temp;
+                }
+            }
         }
 
-        System.out.println("\nAverage waiting time = " + (float) total_waitingTime / (float) n);
-        System.out.println("Average turn around time = " + (float) total_turnAroundTime / (float) n);
-    }
-    
-    public void FCFS_sim ()
-    {
-    	Scanner scanner = new Scanner(System.in);
-        FCFS fcfs = new FCFS();
-        System.out.print("Enter the number of processes: ");
-        int n = scanner.nextInt();
-
-        int processes[] = new int[n];
-        int burstTime[] = new int[n];
+        // ----------------------------------------------------
+        // Calculate All Metrics
+        // ----------------------------------------------------
+        findWaitingTime(n, arrivalTime, burstTime, waitingTime);
+        findTurnAroundTime(n, burstTime, waitingTime, turnAroundTime);
+        findResponseTime(n, waitingTime, responseTime);
 
         for (int i = 0; i < n; i++) {
-            processes[i] = i + 1; // Process IDs
-            System.out.print("Enter burst time for process " + (i + 1) + ": ");
-            burstTime[i] = scanner.nextInt();
+            completionTime[i] = arrivalTime[i] + turnAroundTime[i];
         }
 
-        fcfs.findavgTime(processes, n, burstTime);
+        float totalWT = 0, totalTT = 0, totalRT = 0;
 
-        scanner.close();
+        for (int i = 0; i < n; i++) {
+            totalWT += waitingTime[i];
+            totalTT += turnAroundTime[i];
+            totalRT += responseTime[i];
+        }
+
+        float avgWT = totalWT / n;
+        float avgTT = totalTT / n;
+        float avgRT = totalRT / n;
+
+        float cpuUtil = findCPUUtilization(n, burstTime, completionTime);
+        float throughput = findThroughput(n, completionTime);
+
+        // ----------------------------------------------------
+        // Output Table
+        // ----------------------------------------------------
+        System.out.println("\n-------------------------------------------------------------");
+        System.out.println("                FCFS Scheduling Results");
+        System.out.println("-------------------------------------------------------------");
+        System.out.println("P\tAT\tBT\tWT\tTT\tRT\tCT");
+
+        for (int i = 0; i < n; i++) {
+            System.out.println(
+                processes[i] + "\t" + arrivalTime[i] + "\t" + burstTime[i] + "\t" +
+                waitingTime[i] + "\t" + turnAroundTime[i] + "\t" +
+                responseTime[i] + "\t" + completionTime[i]
+            );
+        }
+
+        // ----------------------------------------------------
+        // Gantt Chart
+        // ----------------------------------------------------
+        System.out.println("\n------------------------- Gantt Chart ------------------------");
+        for (int i = 0; i < n; i++) {
+            System.out.print("|  P" + processes[i] + "  ");
+        }
+        System.out.println("|");
+
+        for (int i = 0; i < n; i++) {
+            System.out.print(completionTime[i] + "      ");
+        }
+        System.out.println();
+
+        // ----------------------------------------------------
+        // Performance Metrics
+        // ----------------------------------------------------
+        System.out.println("\n------------------ Performance Metrics ----------------------");
+        System.out.println("Average Waiting Time     : " + avgWT);
+        System.out.println("Average Turnaround Time  : " + avgTT);
+        System.out.println("Average Response Time    : " + avgRT);
+        System.out.println("CPU Utilization          : " + cpuUtil + "%");
+        System.out.println("Throughput               : " + throughput + " processes/unit time");
+        System.out.println("-------------------------------------------------------------");
     }
 
+    /**
+     * User Interface (with input validation & error handling).
+     */
+    public void FCFS_sim() {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.print("Enter the number of processes: ");
+            int n = scanner.nextInt();
+
+            int processes[] = new int[n];
+            int arrivalTime[] = new int[n];
+            int burstTime[] = new int[n];
+
+            for (int i = 0; i < n; i++) {
+                processes[i] = i + 1;
+
+                // Arrival time validation
+                do {
+                    System.out.print("Enter arrival time for P" + (i + 1) + ": ");
+                    arrivalTime[i] = scanner.nextInt();
+                    if (arrivalTime[i] < 0)
+                        System.out.println("Arrival time must be >= 0.");
+                } while (arrivalTime[i] < 0);
+
+                // Burst time validation
+                do {
+                    System.out.print("Enter burst time for P" + (i + 1) + ": ");
+                    burstTime[i] = scanner.nextInt();
+                    if (burstTime[i] <= 0)
+                        System.out.println("Burst time must be > 0.");
+                } while (burstTime[i] <= 0);
+            }
+
+            findavgTime(processes, n, arrivalTime, burstTime);
+            System.out.println("\n\n");
+
+        } catch (Exception e) {
+            System.out.println("Invalid input. Please enter only integers.");
+        }
+    }
 }
