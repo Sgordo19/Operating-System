@@ -4,28 +4,63 @@ import java.util.Scanner;
 public class Main {
 	
 	public static void main(String[] args) {
-
+		int breakqueue = 0;
+		while(true)
+		{
+			FCFS fcfs = new FCFS();
+			Scanner scanner = new Scanner(System.in);
+			
+			System.out.println("Welcome to our Operating systemm project");
+			System.out.println("Please Choose your Algorithim to simulate: ");
+			
+			
+			int result = 0;
+			while (result <1 || result > 4) {
+			System.out.println("\n 1. First Come First Serve \n 2. Multi Level Queuing \n 3. Round Robin \n 4. Shortest Job First");
+			result =  scanner.nextInt();
+			if(result <1 || result > 4) {
+				System.out.println("Error, please select a correct option");
+			}
+			}
+			switch(result)
+			{
+			case(1):
+				System.out.println("First Come First Serve Algorithim\n");
+				fcfs.FCFS_sim();
+				break;
+			
+			case(2):
+				System.out.println("Multi Level Queuing\n");
+				
+				break;
+				
+			case(3):
+				System.out.println("Round Robin\n");
+			
+				break;
+				
+			case(4):
+				System.out.println("Shortest Job First\n");
+			
+				break;
+			}
+			
+			
+			
+			System.out.println("Press 1 to Stop, Press any Key to Continue");
+			breakqueue = scanner.nextInt();
 
 		    
-		        Scanner scanner = new Scanner(System.in);
-		        FCFS fcfs = new FCFS();
-		        System.out.print("Enter the number of processes: ");
-		        int n = scanner.nextInt();
+			if(breakqueue == 1)
+			{
+				scanner.close();
+				break;
+				
+			}
 
-		        int processes[] = new int[n];
-		        int burstTime[] = new int[n];
-
-		        for (int i = 0; i < n; i++) {
-		            processes[i] = i + 1; // Process IDs
-		            System.out.print("Enter burst time for process " + (i + 1) + ": ");
-		            burstTime[i] = scanner.nextInt();
-		        }
-
-		        fcfs.findavgTime(processes, n, burstTime);
-
-		        scanner.close();
 		    }
 
-	}
 
+	}
+}
 
