@@ -50,10 +50,11 @@ public class FCFS {
         System.out.println("\nAverage waiting time = " + (float) total_waitingTime / (float) n);
         System.out.println("Average turn around time = " + (float) total_turnAroundTime / (float) n);
     }
-
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-
+    
+    public void FCFS_sim ()
+    {
+    	Scanner scanner = new Scanner(System.in);
+        FCFS fcfs = new FCFS();
         System.out.print("Enter the number of processes: ");
         int n = scanner.nextInt();
 
@@ -66,8 +67,9 @@ public class FCFS {
             burstTime[i] = scanner.nextInt();
         }
 
-        findavgTime(processes, n, burstTime);
+        fcfs.findavgTime(processes, n, burstTime);
 
         scanner.close();
     }
+
 }
