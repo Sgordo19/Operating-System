@@ -180,7 +180,7 @@ public class MLQ {
         System.out.println("                                          FINAL METRICS FOR MLQ                                              ");
         System.out.println("=============================================================================================================");
         
-        // Table Header with Full Words
+        // Table 
         System.out.printf("%-12s %-15s %-12s %-12s %-18s %-15s %-18s %-15s%n",
                 "Process ID", "Arrival Time", "Burst Time", "Start Time", "Completion Time", "Waiting Time", "Turnaround Time", "Response Time");
         
@@ -219,4 +219,5 @@ public class MLQ {
         System.out.printf("Throughput:              %.4f processes/unit time%n", throughput);
         System.out.println("=============================================================================================================");
     }
+
 }
