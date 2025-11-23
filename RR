@@ -1,1 +1,135 @@
+package algorithms;
+
+public class Process { 
+	
+	//Attributes 
+    public int pid;              // Process ID
+    public int arrivalTime;      // Time when process arrives in the ready queue
+    public int burstTime;        // Total CPU time required
+    public int remainingTime;    // Remaining CPU time left
+    public int completionTime;   // Time when process finishes
+    public int waitingTime;      // Total waiting time in the ready queue
+    public int turnaroundTime;   // Completion time - arrival time
+    public int responseTime;     // First response time (time from arrival to first execution)
+    public boolean started;  	 //check if process has started execution
+    
+    
+    
+    public Process(int pid, int arrivalTime, int burstTime) {
+        this.pid = pid;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.remainingTime = burstTime; // Initially equal to burst time
+        this.started = false;           // Process has not started yet
+    }
+
+
+//New Class Starts Here
+
+
+package algorithms;
+
+import java.util.List;
+import java.util.*;
+
+public class RoundRobin {
+
+	private List<Process> processes;   // List of processes to schedule
+	private int timeQuantum;          // Fixed time slice for each process
+	
+	//Primary Constructor
+	public RoundRobin(List<Process> processes, int timeQuantum) {
+		super();
+		this.processes = processes;
+		this.timeQuantum = timeQuantum;
+	}
+	
+	  // Core scheduling logic
+    public void schedule() {
+        Queue<Process> queue = new LinkedList<>(); // Ready queue
+        int time = 0;                              // Current simulation time
+        int completed = 0;                         // Number of completed processes
+
+        // Continue until all processes are completed
+        while (completed < processes.size()) {
+            // Add processes that have arrived by current time
+            for (Process p : processes) {
+                if (p.arrivalTime <= time && p.remainingTime > 0 && !queue.contains(p)) {
+                    queue.add(p);
+                }
+            }
+
+            // If no process is ready, increment time
+            if (queue.isEmpty()) {
+                time++;
+                continue;
+            }
+
+            // Select the next process from the queue
+            Process current = queue.poll();
+
+            // Record response time if process is starting for the first time
+            if (!current.started) {
+                current.responseTime = time - current.arrivalTime;
+                current.started = true;
+            }
+
+            // Execute process for time quantum or remaining time (whichever is smaller)
+            int execTime = Math.min(timeQuantum, current.remainingTime);
+            current.remainingTime -= execTime;
+            time += execTime;
+
+            // If process finishes, calculate metrics
+            if (current.remainingTime == 0) {
+                current.completionTime = time;
+                current.turnaroundTime = current.completionTime - current.arrivalTime;
+                current.waitingTime = current.turnaroundTime - current.burstTime;
+                completed++;
+            } else {
+                // Otherwise, put it back in the queue
+                queue.add(current);
+            }
+        }
+    }
+
+    // Print results and calculate averages + extra metrics
+    public void printResults() {
+        double totalWT = 0, totalTAT = 0, totalRT = 0;
+        int totalBurst = 0, maxCompletion = 0;
+        
+        System.out.println("-------------------------------------------------------------\n");
+        // Print table header
+        System.out.println("\nPID \t AT \t BT \t CT \t TAT \t WT \t RT");
+        System.out.println("-------------------------------------------------------------\n");
+        // Print each process's metrics
+        for (Process p : processes) {
+            System.out.println(p.pid  +  "\t"   + p.arrivalTime  +  "\t"  + p.burstTime  +  "\t" +
+                               p.completionTime +  "\t" + p.turnaroundTime +  "\t" +
+                               p.waitingTime +  "\t" + p.responseTime);
+
+            //  totals for averages
+            totalWT += p.waitingTime;
+            totalTAT += p.turnaroundTime;
+            totalRT += p.responseTime; 
+            totalBurst += p.burstTime;
+            maxCompletion = Math.max(maxCompletion, p.completionTime);
+        }
+
+        int n = processes.size();
+
+        // Print averages
+        System.out.println("\nAverage Waiting Time: " + (totalWT/n));
+        System.out.println("Average Turnaround Time: " + (totalTAT/n));
+        System.out.println("Average Response Time: " + (totalRT/n));
+
+        // Extra metrics
+        double cpuUtilization = ((double) totalBurst / maxCompletion) * 100;
+        double throughput = (double) n / maxCompletion;
+
+        System.out.println("----------------------------------------\n");
+        System.out.println("CPU Utilization: " + cpuUtilization + "%");
+        System.out.println("Throughput: " + throughput + " processes/unit time");
+    }
+
+}
 
